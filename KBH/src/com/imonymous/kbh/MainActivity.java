@@ -3,12 +3,18 @@ package com.imonymous.kbh;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 
+import com.echonest.api.v4.EchoNestException;
 
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.StrictMode;
 import android.os.Vibrator;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -26,12 +32,17 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
+
 
 
 
@@ -58,21 +69,29 @@ public class MainActivity extends Activity {
 	private static final int REQUEST_ENABLE_BT = 3;
 	private static final int DISCOVERABLE_TIME = 300;
 	
-	TextView statusUpdate = null;
-	TextView toPhone = null;
-	
     private AcceptThread mSecureAcceptThread;
 	private ConnectThread mConnectThread;
 	private ConnectedThread mConnectedThread;
 	
 	BluetoothDevice device;
 	
+	Thread t;
+	
 	private BluetoothAdapter btAdapter = null;
-	Button tapButton;
-    Button mSendButton;
-    EditText mOutEditText;
-    StringBuffer mOutStringBuffer;
+
+	EditText mEdit;
+	ToggleButton b1;
+	ToggleButton b2;
+	ToggleButton b3;
+	ToggleButton b4;
+	ToggleButton b5;
+	ToggleButton b6;
+	ToggleButton b7;
+	ToggleButton b8;
     
+	List<Long> beats;
+	
+	boolean vibrating = true;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -82,6 +101,16 @@ public class MainActivity extends Activity {
 		
 		mState = STATE_NONE;
 		
+		mEdit   = (EditText)findViewById(R.id.editText1);
+		b1 = (ToggleButton) findViewById(R.id.toggleButton1);
+		b2 = (ToggleButton) findViewById(R.id.toggleButton2);
+		b3 = (ToggleButton) findViewById(R.id.toggleButton3);
+		b4 = (ToggleButton) findViewById(R.id.toggleButton4);
+		b5 = (ToggleButton) findViewById(R.id.toggleButton5);
+		b6 = (ToggleButton) findViewById(R.id.toggleButton6);
+		b7 = (ToggleButton) findViewById(R.id.toggleButton7);
+		b8 = (ToggleButton) findViewById(R.id.toggleButton8);
+		
 		btAdapter = BluetoothAdapter.getDefaultAdapter();
 		if (btAdapter == null) {
 		    // Device does not support Bluetooth
@@ -89,6 +118,10 @@ public class MainActivity extends Activity {
 			finish();
 			return;
 		}
+		
+		StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+
+		StrictMode.setThreadPolicy(policy); 
 	}
 	
 	@Override
@@ -111,6 +144,7 @@ public class MainActivity extends Activity {
 	
 	protected void onResume() {
         super.onResume();
+        
         String log = "OnResume";    	
     	Log.d("Function", log);
 	}
@@ -144,35 +178,10 @@ public class MainActivity extends Activity {
     
     // Setting up before the BT transactions begin. Make sure UI is initialized and the device is discoverable
     void setUp()
-	{
-
-        // Initialize the compose field with a listener for the return key
-        mOutEditText = (EditText) findViewById(R.id.editText1);
-        mOutEditText.setOnEditorActionListener(mWriteListener);
-
-        // Initialize the send button with a listener that for click events
-        mSendButton = (Button) findViewById(R.id.button2);
-        mSendButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                // Send a message using content of the edit text widget
-                TextView view = (TextView) findViewById(R.id.editText1);
-                String message = view.getText().toString();
-                sendMessage(message);
-            }
-        });
-		
-		tapButton = (Button) findViewById(R.id.button1);
-		statusUpdate = (TextView) findViewById(R.id.textView2);
-		toPhone = (TextView) findViewById(R.id.textView3);
-        
-        // Initialize the buffer for outgoing messages
-        mOutStringBuffer = new StringBuffer("");
-
-        //Make discovery possible for both devices
-        //ensureDiscoverable();
-        
+	{		
         // Both open a socket for listening, until one of them sends a connect initiating the BT transaction
         startListening();
+        
         Toast.makeText(this, "Ran SetUp", Toast.LENGTH_LONG).show();
 	}
 	
@@ -198,10 +207,6 @@ public class MainActivity extends Activity {
             // Get the message bytes and tell the BluetoothChatService to write
             byte[] send = message.getBytes();
             write(send);
-
-            // Reset out string buffer to zero and clear the edit text field
-            mOutStringBuffer.setLength(0);
-            mOutEditText.setText(mOutStringBuffer);
         }
     }
     
@@ -296,7 +301,7 @@ public class MainActivity extends Activity {
             if (resultCode == Activity.RESULT_OK) {
                 // Bluetooth is now enabled, so set up a chat session
                 setUp();
-                Toast.makeText(this, "Enabled BT", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, R.string.bt_enabled, Toast.LENGTH_LONG).show();
             } else {
                 // User did not enable Bluetooth or an error occurred
                 Toast.makeText(this, R.string.bt_not_enabled_leaving, Toast.LENGTH_SHORT).show();
@@ -305,24 +310,344 @@ public class MainActivity extends Activity {
             break;
         }
     }
+    
+    //Morebeat 1
+    public void vibrateTap1(View view)
+	{
+		Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+	   	 
+		if(v.hasVibrator())
+		{
+			sendMessage("1");
+	    	v.vibrate(30);
+		}
+		else
+		{
+			Toast.makeText(this, R.string.no_vibrator, Toast.LENGTH_SHORT).show();
+		}
+	}
+    
+    //Morebeat 2
+    public void vibrateTap2(View view)
+	{
+		Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+	   	 
+		if(v.hasVibrator())
+		{
+			sendMessage("2");
+			long[] pattern = {0, 31, 63, 31, 63, 31, 31, 125, 250, 125, 125, 125};
+  	    	v.vibrate(pattern, -1);
+		}
+		else
+		{
+			Toast.makeText(this, R.string.no_vibrator, Toast.LENGTH_SHORT).show();
+		}
+	}
+    
+    //Morebeat 3
+    public void vibrateTap3(View view)
+	{
+		Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+	   	 
+		if(v.hasVibrator())
+		{
+			sendMessage("3");
+			long[] pattern = {31, 31, 125, 31, 63, 63, 31, 125, 63, 62, 125, 125, 62, 63};
+  	    	v.vibrate(pattern, -1);
+		}
+		else
+		{
+			Toast.makeText(this, R.string.no_vibrator, Toast.LENGTH_SHORT).show();
+		}
+	}
+    
+    //Morebeat 4
+    public void vibrateTap4(View view)
+	{
+		Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+	   	 
+		if(v.hasVibrator())
+		{
+			sendMessage("4");
+			long[] pattern = {0, 250, 250, 250, 250, 125, 125, 125, 125, 250, 250};
+  	    	v.vibrate(pattern, -1);
+		}
+		else
+		{
+			Toast.makeText(this, R.string.no_vibrator, Toast.LENGTH_SHORT).show();
+		}
+	}
 
+    public void vibrateSong(View view)
+	{
+		TrackAnalyser ta = new TrackAnalyser();
+			
+		try {
+			if(mEdit.getText().toString() != null)
+			{
+				beats = ta.analyse(mEdit.getText().toString());
+				if(beats.size() != 0 )
+				{
+					playSong();
+				}
+			}
+		} catch (EchoNestException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}    	
+		
+	}
+    
+    public void playSong()
+	{ 
+		t = new Thread(new Runnable()
+		{
+			public void run()
+			{
+				Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+			   	long startTime = System.currentTimeMillis();
+				long nextTime = (long) ( startTime + beats.get(0));
+				boolean vibrated = false;
+				
+				vibrating = true;
+				
+				Iterator<Long> it = beats.iterator();
+				
+				if(v.hasVibrator())
+				{
+					while(it.hasNext())
+					{
+						vibrated = false;
+						while( System.currentTimeMillis() < nextTime)
+						{
+							if ( !vibrated && vibrating )
+							{
+								v.vibrate(30);
+								vibrated = true;
+							}
+						}
+						nextTime = startTime + it.next();
+					}
+				}
+			}
+		});
+		t.start();
+	}
+
+    //Rattlesnake
+	public void vibrate1(View view)
+	{
+		Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+	   	 
+		if(v.hasVibrator())
+		{
+			int tON = 750;
+			int tOFF = 250;
+			
+	    	long[] pattern = {0, tON, tOFF};
+	    	
+	    	if(b1.isChecked())
+	    	{
+	    		v.vibrate(pattern, 0);
+	    	}
+	    	else
+	    	{
+	    		v.vibrate(pattern, -1);
+	    	}
+		}
+		else
+		{
+			Toast.makeText(this, R.string.no_vibrator, Toast.LENGTH_SHORT).show();
+		}
+	}
 	
-	public void btnVibrate(View view) {
-		Toast.makeText(this, "Clicked", Toast.LENGTH_SHORT).show();
-    	// Get instance of Vibrator from current Context
-    	Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-    	 
-    	// Vibrate for 50 milliseconds
-    	v.vibrate(50);
-    	
-    	sendMessage("1");
-    	    	
-    }
+	//Rain
+	public void vibrate2(View view)
+	{
+		Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+	   	 
+		if(v.hasVibrator())
+		{
+			Random random = new Random(System.currentTimeMillis());
+			
+	    	long[] pattern = {0, random.nextInt(200), random.nextInt(200), random.nextInt(200), random.nextInt(200), random.nextInt(200), random.nextInt(200), random.nextInt(200), random.nextInt(200), random.nextInt(200)};
+	    	if(b2.isChecked())
+	    	{
+	    		v.vibrate(pattern, 0);
+	    	}
+	    	else
+	    	{
+	    		v.vibrate(pattern, -1);
+	    	}
+		}
+		else
+		{
+			Toast.makeText(this, R.string.no_vibrator, Toast.LENGTH_SHORT).show();
+		}
+	}
+	
+	//Timebomb
+	public void vibrate3(View view)
+	{
+		Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+	   	 
+		if(v.hasVibrator())
+		{
+	    	long[] pattern = {125, 125};
+	    	if(b3.isChecked())
+	    	{
+	    		v.vibrate(pattern, 0);
+	    	}
+	    	else
+	    	{
+	    		v.vibrate(pattern, -1);
+	    	}
+		}
+		else
+		{
+			Toast.makeText(this, R.string.no_vibrator, Toast.LENGTH_SHORT).show();
+		}
+	}
+	
+	//OffbeatWaltz
+	public void vibrate4(View view)
+	{
+		Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+	   	 
+		if(v.hasVibrator())
+		{
+	    	long[] pattern = {250, 125, 125, 125, 125};
+	    	if(b4.isChecked())
+	    	{
+	    		v.vibrate(pattern, 0);
+	    	}
+	    	else
+	    	{
+	    		v.vibrate(pattern, -1);
+	    	}
+		}
+		else
+		{
+			Toast.makeText(this, R.string.no_vibrator, Toast.LENGTH_SHORT).show();
+		}
+	}
+	
+	//Beat1
+	public void vibrate5(View view)
+	{
+		Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+	   	 
+		if(v.hasVibrator())
+		{
+	    	long[] pattern = { 62, 63, 125, 62, 63, 125, 62, 250, 63, 125 };
+	    	if(b5.isChecked())
+	    	{
+	    		v.vibrate(pattern, 0);
+	    	}
+	    	else
+	    	{
+	    		v.vibrate(pattern, -1);
+	    	}
+		}
+		else
+		{
+			Toast.makeText(this, R.string.no_vibrator, Toast.LENGTH_SHORT).show();
+		}
+	}
+	
+	//Beat2
+	public void vibrate6(View view)
+	{
+		Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+	   	 
+		if(v.hasVibrator())
+		{
+	    	long[] pattern = {0, 31, 63, 31, 63, 31, 31, 125, 250, 125, 125, 125};
+	    	if(b6.isChecked())
+	    	{
+	    		v.vibrate(pattern, 0);
+	    	}
+	    	else
+	    	{
+	    		v.vibrate(pattern, -1);
+	    	}
+		}
+		else
+		{
+			Toast.makeText(this, R.string.no_vibrator, Toast.LENGTH_SHORT).show();
+		}
+	}
+	
+	//Beat3
+	public void vibrate7(View view)
+	{
+		Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+	   	 
+		if(v.hasVibrator())
+		{
+	    	long[] pattern = {31, 31, 125, 31, 63, 63, 31, 125, 63, 62, 125, 125, 62, 63};
+	    	if(b7.isChecked())
+	    	{
+	    		v.vibrate(pattern, 0);
+	    	}
+	    	else
+	    	{
+	    		v.vibrate(pattern, -1);
+	    	}
+		}
+		else
+		{
+			Toast.makeText(this, R.string.no_vibrator, Toast.LENGTH_SHORT).show();
+		}
+	}
+	
+	//Beat4
+	public void vibrate8(View view)
+	{
+		Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+	   	 
+		if(v.hasVibrator())
+		{
+	    	long[] pattern = {0, 250, 250, 250, 250, 125, 125, 125, 125, 250, 250};
+	    	if(b8.isChecked())
+	    	{
+	    		v.vibrate(pattern, 0);
+	    	}
+	    	else
+	    	{
+	    		v.vibrate(pattern, -1);
+	    	}
+		}
+		else
+		{
+			Toast.makeText(this, R.string.no_vibrator, Toast.LENGTH_SHORT).show();
+		}
+	}
+	
+	public void stopVibrate(View view)
+	{
+		Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+	   	v.cancel();	
+	   	
+	   	vibrating = false;
+	   	
+	   	if (t != null)
+	   	{
+	   		
+	   		t.interrupt();
+	   		t = null;
+	   	}
+	}
 	
 	public void btnExit(View view) {
-		Toast.makeText(this, "ByeBye!", Toast.LENGTH_LONG).show();
 		
-		System.exit(1);    	   	    	
+		Toast.makeText(this, "Bye!", Toast.LENGTH_LONG).show();
+		
+		if (mSecureAcceptThread != null)
+		{
+			mSecureAcceptThread = null;
+		}
+		finish();   	   	    	
     }
 
 
@@ -590,16 +915,28 @@ public class MainActivity extends Activity {
                 try {
                     // Read from the InputStream
                     bytes = mmInStream.read(buffer);
-                     
-                    if(bytes >= 1)
-                    {                    	
-                    	// Get instance of Vibrator from current Context
-                    	Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-                    	
-                    	Log.d("Reading", "Read");
-                    	
-                    	// Vibrate for 300 milliseconds
-                    	v.vibrate(300);
+	                
+                    if(bytes > 0)
+                    {
+	                    int i = byteArrayToInt(buffer);
+	                    
+	                    switch(i)
+	                    {
+	                    case 1:
+	                    	vibrate1();
+	                    	break;
+	                    case 2:
+	                    	vibrate2();
+	                    	break;
+	                    case 3:
+	                    	vibrate3();
+	                    	break;
+	                    case 4:
+	                    	vibrate4();
+	                    	break;
+	                    default:
+	                    	break;
+	                    }
                     }
 
                 } catch (IOException e) {
@@ -669,6 +1006,77 @@ public class MainActivity extends Activity {
     public synchronized int getState() {
         return mState;
     }
+    
+    public static int byteArrayToInt(byte[] b) 
+    {
+        return   b[3] & 0xFF |
+                (b[2] & 0xFF) << 8 |
+                (b[1] & 0xFF) << 16 |
+                (b[0] & 0xFF) << 24;
+    }
 
-	
+ 	
+  	//MoreBeat1
+  	public void vibrate1()
+  	{
+  		Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+  	   	 
+  		if(v.hasVibrator())
+  		{
+  	    	v.vibrate(30);
+  		}
+  		else
+  		{
+  			Toast.makeText(this, R.string.no_vibrator, Toast.LENGTH_SHORT).show();
+  		}
+  	}
+  	
+  	//MoreBeat2
+  	public void vibrate2()
+  	{
+  		Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+  	   	 
+  		if(v.hasVibrator())
+  		{
+  	    	long[] pattern = {0, 31, 63, 31, 63, 31, 31, 125, 250, 125, 125, 125};
+  	    	v.vibrate(pattern, -1);
+  	    	
+  		}
+  		else
+  		{
+  			Toast.makeText(this, R.string.no_vibrator, Toast.LENGTH_SHORT).show();
+  		}
+  	}
+  	
+  	//MoreBeat3
+  	public void vibrate3()
+  	{
+  		Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+  	   	 
+  		if(v.hasVibrator())
+  		{
+  	    	long[] pattern = {31, 31, 125, 31, 63, 63, 31, 125, 63, 62, 125, 125, 62, 63};
+  	    	v.vibrate(pattern, -1);
+  		}
+  		else
+  		{
+  			Toast.makeText(this, R.string.no_vibrator, Toast.LENGTH_SHORT).show();
+  		}
+  	}
+  	
+  	//MoreBeat4
+  	public void vibrate4()
+  	{
+  		Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+  	   	 
+  		if(v.hasVibrator())
+  		{
+  	    	long[] pattern = {0, 250, 250, 250, 250, 125, 125, 125, 125, 250, 250};
+  	    	v.vibrate(pattern, -1);
+  		}
+  		else
+  		{
+  			Toast.makeText(this, R.string.no_vibrator, Toast.LENGTH_SHORT).show();
+  		}
+  	}
 }

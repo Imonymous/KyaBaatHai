@@ -24,4 +24,12 @@
 <fullyQualifiedTypeName name="android.widget.ArrayAdapter"/>
 <fullyQualifiedTypeName name="android.util.Log"/>
 <fullyQualifiedTypeName name="android.R"/>
+<fullyQualifiedTypeName name="android.widget.ImageButton"/>
+<fullyQualifiedTypeName name="com.imonymous.kbh.R.drawable"/>
+<fullyQualifiedTypeName name="android.os.StrictMode"/>
+<fullyQualifiedTypeName name="android.widget.SeekBar.OnSeekBarChangeListener"/>
+<fullyQualifiedTypeName name="android.widget.SeekBar"/>
+<fullyQualifiedTypeName name="com.echonest.api.v4.TrackAnalysis"/>
+<fullyQualifiedTypeName name="com.echonest.api.v4.Params"/>
+<fullyQualifiedTypeName name="com.echonest.api.v4.Song"/>
 </qualifiedTypeNameHistroy>

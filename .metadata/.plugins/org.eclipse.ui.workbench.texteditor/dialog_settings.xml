@@ -13,16 +13,16 @@
 		<item value="false" key="isRegEx"/>
 		<item value="false" key="incremental"/>
 		<item value="false" key="wholeword"/>
-		<item value="toPhone" key="selection"/>
+		<item value="" key="selection"/>
 		<list key="findhistory">
-			<item value="toPhone"/>
-			<item value="Toast"/>
-			<item value="ensure"/>
-			<item value="startActivityForResult"/>
+			<item value="btnVibrate"/>
 			<item value="setUp"/>
-			<item value="NAME_SECURE"/>
-			<item value="Leaving"/>
-			<item value="mBluetoothAdapter"/>
+			<item value="startListening"/>
+			<item value="exit"/>
+			<item value="exitR.dr"/>
+			<item value="mSendButton"/>
+			<item value="btn"/>
+			<item value="ensureDiscoverable"/>
 		</list>
 		<list key="replacehistory">
 		</list>

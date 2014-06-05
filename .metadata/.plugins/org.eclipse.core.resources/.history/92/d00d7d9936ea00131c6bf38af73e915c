@@ -1,0 +1,27 @@
+package com.imonymous.kbh;
+
+import com.echonest.api.v4.Artist;
+import com.echonest.api.v4.EchoNestAPI;
+import com.echonest.api.v4.EchoNestException;
+
+import java.util.List;
+
+public class TrackAnalyser {
+	
+	String API_KEY = "R1LPX9ILG1ZJBXJAY";	
+	
+	public void analyse(String artistName) throws EchoNestException {
+		
+		EchoNestAPI echoNest = new EchoNestAPI(API_KEY);
+        List<Artist> artists = echoNest.searchArtists("Weezer");
+
+        if (artists.size() > 0) {
+            Artist weezer = artists.get(0);
+            System.out.println("Similar artists for " + weezer.getName());
+            for (Artist simArtist : weezer.getSimilar(10)) {
+                System.out.println("   " + simArtist.getName());
+            }
+        }
+        
+	}
+}
